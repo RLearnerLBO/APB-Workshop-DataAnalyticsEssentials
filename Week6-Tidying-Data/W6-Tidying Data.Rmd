@@ -3,13 +3,41 @@ title: "Week 5 Tidying Data"
 output: html_notebook
 ---
 
+#Functions Example
+
+```{r}
+pow <- function(x, y) {
+  # function to print x raised to the power y
+  result <- x^y
+  print(paste(x,"raised to the power", y, "is", result))
+}
+
+pow(2,5)
+
+pow(x = 8, y = 2)
+
+#With default value
+pow <- function(x, y = 2) {
+    # function to print x raised to the power y
+    result <- x^y
+    print(paste(x,"raised to the power", y, "is", result))
+}
+
+pow(5)
+
+
+#Can you write a function to add, subtract and multiple? Can you also make the function to print the results out? 
+	
+```
+
+
+
 # Part One - UBS
 
 ```{r}
 library(alr4)
 library(tidyverse)
 library(ggplot2)
-
 ```
 
 
@@ -19,7 +47,7 @@ head(UBSprices)
 ```
 
 #Questions to Answer
-#  1. What is the general trend og rice prices in all countries from 2003 to 2009, 
+#  1. What is the general trend of rice prices in all countries from 2003 to 2009, 
 #  use a boxplot to illustrate your findings 
 
 ```{r}
@@ -88,7 +116,6 @@ ggplot(data=decrease_rice,aes(x=diff,y=countries)) +
 ########################################################################
 
 ```{r}
-
 library(nycflights13)
 flights <- flights
 str(flights)
@@ -105,8 +132,10 @@ nov28 <- flights %>%
 #3 Select from the previous condition, only the columns (flight, origin, distance, air_time)
 nov28_4 = nov28 %>% 
               select(flight, origin, distance, air_time)
+```
 
 
+```{r}
 #4 Create a new column with the speed of the slight using the question 3
 nov28_with_speed = nov28_4 %>% 
               mutate(speed = distance / air_time * 60)
@@ -123,7 +152,7 @@ nov28_with_speed %>%
 
 ```
 
-Calculate destination delay based on destination, and filter the final ouput
+Calculate destination delay based on destination, and filter the final output
 
 ```{r}
 delays <- flights %>% 
@@ -156,10 +185,10 @@ genesname <- as.data.frame(rownames(parathyroidGenesSE))
 
 ```
 
-
 From the data above, extract 
 1a. Apply the Columns Name to the count matrix using the colnames() function based on the sample run name
 
+# Some revision from earlier week 
 1b. Apply the Row Name to the count matrix using the rownames() function based on the genes names
 
 1c  Extract Sample (RUN) name of DPN treatment on 12h only
@@ -168,8 +197,39 @@ From the data above, extract
 
 1b. plot a heatmap using pheatmap on the newly extract col information
 
+# Now something more complicated 
+2. Can you figure out which sample have the overall lowest count in the sample? plot a box plot of all the sum of all gene to check this out
+
+3. Filter out only the gene that have more than a count of more than 500 in all samples.
+
+4. from the dataset are you able to extract the sample from patient 1, treated with DPB, and plot out the comparison of the two. 
+
+5. Are you able to figure out how many genes have been up regulated and how many have been down regulated? 
+
+6. Can you run a extract the top10 upregulated genes based on fold change? You can calculate fold change of the genes using fc=(expression condition 24h)/(expression condition 48h)
+
+7. Can you do the same for Log2FC? 
+
+8. Are you able to annotate those genes you have isolated earlier? and join them to their Log2FC values
+
+```{r}
+## This is an Example to annotate ensemble ID from the dataset, can you modified to fit your list？ 
+
+#BiocManager::install("biomaRt")
+library(biomaRt)
+
+mart <- useDataset("hsapiens_gene_ensembl", useMart("ensembl"))
+genes <-  genesname
+
+Allattribute <- listAttributes(ensembl)
+
+gene_IDs <- getBM(filters= "ensembl_gene_id", 
+                  attributes= c("ensembl_gene_id","hgnc_symbol","description"),
+                  values = genes, mart= mart)
+
+Summary <- left_join(genes, gene_IDs, by = c("rownames(parathyroidGenesSE)"="ensembl_gene_id"))
+
+```
 
 
-
-
-
+8. Are you able to do the same for the other patient? functions/loops can help you here. 
